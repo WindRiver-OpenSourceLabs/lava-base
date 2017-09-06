@@ -2,7 +2,7 @@
 FROM debian:jessie-backports
 
 # Add services helper utilities to start and stop LAVA
-COPY scripts/*.sh .
+COPY scripts/*.sh /
 
 # Install debian packages used by the container
 # Configure apache to run the lava server
