@@ -2,8 +2,7 @@
 FROM debian:jessie-backports
 
 # Add services helper utilities to start and stop LAVA
-COPY scripts/stop.sh .
-COPY scripts/start.sh .
+COPY scripts/*.sh .
 
 # Install debian packages used by the container
 # Configure apache to run the lava server
@@ -13,10 +12,10 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
  && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+ # install these older version packages to descrease the image size
  lava-coordinator \
  lava-dispatcher \
  linaro-image-tools \
-# locales \
  postgresql \
  screen \
  sudo \
@@ -24,13 +23,12 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
  gnupg \
  vim-tiny \
  tftpd-hpa \
-# && locale-gen en_US.UTF-8 \
-# && update-locale LANG=en_US.UTF-8 \
  && service postgresql start \
  && wget http://images.validation.linaro.org/production-repo/production-repo.key.asc \
  && apt-key add production-repo.key.asc \
  && echo 'deb http://images.validation.linaro.org/production-repo/ jessie-backports main' > /etc/apt/sources.list.d/lava.list \
  && apt-get clean && apt-get update \
+ # removed --no-install-recommends option for now, will add it back later
  && DEBIAN_FRONTEND=noninteractive apt-get -t jessie-backports install -y \
  lava-server \
  lava-tool \
@@ -38,13 +36,13 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
  u-boot-tools \
  python-setproctitle \
  && apt-get clean \
+ # remove some unused packages to decrease the image size
  && apt-get purge python3.4 qemu-system-arm -y && apt-get autoremove -y \
  && mv /usr/share/doc/lava* /root && rm -rf /usr/share/doc/* && mv /root/lava* /usr/share/doc/\
  && a2enmod proxy \
  && a2enmod proxy_http \
  && a2dissite 000-default \
  && a2ensite lava-server \
- && echo "TLS_REQCERT ALLOW" >> /etc/ldap/ldap.conf \
  && /stop.sh
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
