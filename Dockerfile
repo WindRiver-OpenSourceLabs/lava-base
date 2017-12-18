@@ -1,5 +1,5 @@
-#FROM debian:stretch
-FROM debian:jessie-backports
+FROM debian:stretch
+#FROM debian:jessie-backports
 
 # Add services helper utilities to start and stop LAVA
 COPY scripts/*.sh /
