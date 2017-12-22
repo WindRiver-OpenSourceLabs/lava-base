@@ -26,12 +26,12 @@ rm -f /var/run/lava-*.pid 2> /dev/null
 
 start postgresql
 start apache2
-start lava-server
-start lava-master
-start lava-coordinator
-start lava-slave
-start lava-server-gunicorn
+#start lava-coordinator
+#start lava-slave
+#start lava-server-gunicorn
 start tftpd-hpa
 
-postgres-ready
+
+
+#postgres-ready
 service apache2 reload #added after the website not running a few times on boot
