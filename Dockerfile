@@ -16,10 +16,10 @@ RUN find /etc/systemd/system \
          -not -name '*journald*' \
          -not -name '*systemd-tmpfiles*' \
          -not -name '*systemd-user-sessions*' \
-#         -not -name 'runlevel3.target' \
+         -not -name 'runlevel3.target' \
          -exec rm \{} \; \
  && systemctl set-default multi-user.target \
-# && ln -s ../runlevel3.target /lib/systemd/system/multi-user.target.wants \
+ && ln -s ../runlevel3.target /lib/systemd/system/multi-user.target.wants \
  && echo 'lava-server   lava-server/instance-name string lava-docker-instance' | debconf-set-selections \
  && echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_US.UTF-8 UTF-8 ' | debconf-set-selections \
  && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections \
@@ -60,33 +60,10 @@ RUN find /etc/systemd/system \
  && service postgresql stop
 
 COPY configs/tftpd-hpa /etc/default/tftpd-hpa
-#COPY configs/apache2.service /lib/systemd/system/
-#COPY configs/apache2@.service /lib/systemd/system/
 
 EXPOSE 69/udp 80 3079 5555 5556
 
 #CMD /start.sh && bash
-
-#RUN rm /etc/rc3.d/S02bootlogs \
-# && rm /etc/rc3.d/S02cron \
-# && rm /etc/rc3.d/S02dbus \
-# && rm /etc/rc3.d/S02dirmngr \
-# && rm /etc/rc3.d/S02gunicorn \
-# && rm /etc/rc3.d/S02lava-coordinator \
-# && rm /etc/rc3.d/S02lxc \
-# && rm /etc/rc3.d/S02lxc-net \
-# && rm /etc/rc3.d/S02lxcfs \
-# && rm /etc/rc3.d/S02mdadm \
-# && rm /etc/rc3.d/S02motd \
-# && rm /etc/rc3.d/S02nfs-kernel-server \
-# && rm /etc/rc3.d/S02ntp \
-# && rm /etc/rc3.d/S02openbsd-inetd \
-# && rm /etc/rc3.d/S02postgresql \
-# && rm /etc/rc3.d/S02rsync \
-# && rm /etc/rc3.d/S02ser2net \
-# && rm /etc/rc3.d/S03exim4 \
-# && rm /etc/rc3.d/S04rc.local \
-# && rm /etc/rc3.d/S04rmnologin
 
 STOPSIGNAL SIGRTMIN+3
 
