@@ -9,6 +9,8 @@ COPY scripts/*.sh /
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
+
+# Idea came from https://github.com/solita/docker-systemd
 # Don't start any optional services except for the few we need.
 RUN find /etc/systemd/system \
          /lib/systemd/system \
@@ -16,6 +18,7 @@ RUN find /etc/systemd/system \
          -not -name '*journald*' \
          -not -name '*systemd-tmpfiles*' \
          -not -name '*systemd-user-sessions*' \
+         # keep apache2 related service files
          -not -name 'runlevel3.target' \
          -exec rm \{} \; \
  && systemctl set-default multi-user.target \
@@ -25,10 +28,6 @@ RUN find /etc/systemd/system \
  && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
- # install these older version packages to descrease the image size
- #lava-coordinator \
- #lava-dispatcher \
- #linaro-image-tools \
  postgresql \
  screen \
  sudo \
@@ -57,7 +56,8 @@ RUN find /etc/systemd/system \
  && a2ensite lava-server.conf \
  && apt-get autoremove -y \
  && mv /usr/share/doc/lava* /root && rm -rf /usr/share/doc/* && mv /root/lava* /usr/share/doc/ \
- && service postgresql stop
+ && service postgresql stop \
+ && dpkg -l lava-server lava-dispatcher lava-tool python-django python-django-tables2
 
 COPY configs/tftpd-hpa /etc/default/tftpd-hpa
 
@@ -66,15 +66,6 @@ EXPOSE 69/udp 80 3079 5555 5556
 #CMD /start.sh && bash
 
 STOPSIGNAL SIGRTMIN+3
-
-# Create a admin user (Insecure note, this creates a default user, username: admin/admin)
-#RUN /start.sh \
-# && lava-server manage users add --passwd admin --staff --superuser --email admin@example.com admin \
-# && dpkg -l lava-server lava-dispatcher lava-tool python-django python-django-tables2 \
-# && /stop.sh
-
-# use volume mounts to handle persistence and to avoid writes to union filesystem
-VOLUME "/var/lib/postgresql"
 
 # Workaround for docker/docker#27202, technique based on comments from docker/docker#9212
 CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
