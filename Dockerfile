@@ -1,10 +1,14 @@
 #FROM debian:stretch
-FROM debian:jessie-backports
+FROM debian:stretch-backports
 
 ENV container docker
 
 # Add services helper utilities to start and stop LAVA
 COPY scripts/*.sh /
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+ systemd
 
 # Install debian packages used by the container
 # Configure apache to run the lava server
@@ -38,10 +42,10 @@ RUN find /etc/systemd/system \
  && service postgresql start \
  && wget http://images.validation.linaro.org/production-repo/production-repo.key.asc \
  && apt-key add production-repo.key.asc \
- && echo 'deb http://images.validation.linaro.org/production-repo/ jessie-backports main' > /etc/apt/sources.list.d/lava.list \
+ && echo 'deb http://images.validation.linaro.org/production-repo/ stretch-backports main' > /etc/apt/sources.list.d/lava.list \
  && apt-get clean && apt-get update \
  # removed --no-install-recommends option for now, will add it back later
- && DEBIAN_FRONTEND=noninteractive apt-get -t jessie-backports install -y \
+ && DEBIAN_FRONTEND=noninteractive apt-get -t stretch-backports install -y \
  lava-server \
  lava-tool \
  ser2net \
