@@ -37,17 +37,18 @@ RUN echo 'lava-server lava-server/instance-name string lava-docker-instance' | d
  && echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_US.UTF-8 UTF-8 ' | debconf-set-selections \
  && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections
 
-# Install postgresql
+# Install latest postgresql
 RUN wget --no-check-certificate https://www.postgresql.org/media/keys/ACCC4CF8.asc \
  && apt-key add ACCC4CF8.asc \
  && echo 'deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
- && wget --no-check-certificate https://images.validation.linaro.org/staging-repo/staging-repo.key.asc \
- && apt-key add staging-repo.key.asc \
- && echo 'deb http://images.validation.linaro.org/staging-repo stretch-backports main' > /etc/apt/sources.list.d/lava.list \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
- postgresql-9.4 \
- && apt-get clean
+ postgresql
+
+RUN wget --no-check-certificate https://images.validation.linaro.org/staging-repo/staging-repo.key.asc \
+ && apt-key add staging-repo.key.asc \
+ && echo 'deb http://images.validation.linaro.org/staging-repo stretch-backports main' > /etc/apt/sources.list.d/lava.list \
+ && apt-get update
 
 # removed --no-install-recommends option for now, will add it back later
 RUN service postgresql start \
@@ -64,8 +65,8 @@ RUN service postgresql start \
  && a2ensite lava-server.conf \
  && apt-get autoremove -y \
  && mv /usr/share/doc/lava* /root && rm -rf /usr/share/doc/* && mv /root/lava* /usr/share/doc/ \
- #&& service postgresql stop \
- && dpkg -l lava-server lava-dispatcher lava-tool python-django python-django-tables2
+ && service postgresql stop \
+ && dpkg -l lava-server lava-dispatcher lava-tool python-django python-django-tables2 python3-django python3-django-tables2
 
 COPY configs/tftpd-hpa /etc/default/tftpd-hpa
 
