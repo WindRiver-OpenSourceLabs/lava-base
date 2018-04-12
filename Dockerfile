@@ -66,7 +66,7 @@ RUN service postgresql start \
  && apt-get autoremove -y \
  && mv /usr/share/doc/lava* /root && rm -rf /usr/share/doc/* && mv /root/lava* /usr/share/doc/ \
  && service postgresql stop \
- && dpkg -l lava-server lava-dispatcher lava-tool python-django python-django-tables2 python3-django python3-django-tables2
+ && dpkg -l lava-server lava-dispatcher lava-tool python3-django python3-django-tables2
 
 COPY configs/tftpd-hpa /etc/default/tftpd-hpa
 
