@@ -43,7 +43,7 @@ RUN wget --no-check-certificate https://www.postgresql.org/media/keys/ACCC4CF8.a
  && echo 'deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
- postgresql
+ postgresql-10 pgadmin4
 
 RUN wget --no-check-certificate https://images.validation.linaro.org/staging-repo/staging-repo.key.asc \
  && apt-key add staging-repo.key.asc \
