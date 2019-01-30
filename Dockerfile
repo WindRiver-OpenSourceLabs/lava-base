@@ -13,8 +13,9 @@ RUN apt-get update \
  sudo \
  wget \
  gnupg \
- vim-tiny \
- tftpd-hpa
+ nano \
+ tftpd-hpa \
+ && apt-get clean
 
 # Idea came from https://github.com/solita/docker-systemd
 # Don't start any optional services except for the few we need.
@@ -43,7 +44,9 @@ RUN wget --no-check-certificate https://www.postgresql.org/media/keys/ACCC4CF8.a
  && echo 'deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
- postgresql-10 pgadmin4
+ postgresql-10 \
+ pgadmin4 \
+ && apt-get clean
 
 RUN wget --no-check-certificate https://apt.lavasoftware.org/lavasoftware.key.asc \
  && apt-key add lavasoftware.key.asc \
@@ -53,11 +56,13 @@ RUN wget --no-check-certificate https://apt.lavasoftware.org/lavasoftware.key.as
 # removed --no-install-recommends option for now, will add it back later
 RUN service postgresql start \
  && DEBIAN_FRONTEND=noninteractive apt-get -t buster install -y \
+ lava-lxc-mocker \
  lava-server \
  lava-tool \
  ser2net \
  u-boot-tools \
  python-setproctitle \
+ && apt-get purge python2 -y \
  && apt-get clean \
  && a2dissite 000-default \
  && a2enmod proxy \
@@ -69,6 +74,9 @@ RUN service postgresql start \
 # && dpkg -l lava-server lava-dispatcher lava-tool python3-django
 
 COPY configs/tftpd-hpa /etc/default/tftpd-hpa
+
+# Fix the ALLOWED_HOSTS issue: https://git.lavasoftware.org/lava/lava/issues/173
+ADD configs/settings.conf /etc/lava-server/settings.conf
 
 EXPOSE 69/udp 80 3079 5555 5556
 
